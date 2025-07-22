@@ -1,0 +1,21 @@
+[gd_scene load_steps=3 format=3 uid="uid://bokkat7cb4hml"]
+
+[ext_resource type="Script" uid="uid://b0x5a2g844ova" path="res://camera_rig.gd" id="1_a202f"]
+[ext_resource type="Script" uid="uid://clt4vm4tspyta" path="res://main.gd" id="1_noarx"]
+
+[node name="Main" type="Node3D"]
+script = ExtResource("1_noarx")
+
+[node name="CameraRig" type="Node3D" parent="."]
+script = ExtResource("1_a202f")
+
+[node name="Camera3D" type="Camera3D" parent="CameraRig"]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="CameraRig/Camera3D"]
+transform = Transform3D(0.975719, -0.179007, -0.12621, 0.209813, 0.929268, 0.304038, 0.0628578, -0.323136, 0.944263, 0, 0, 0)
+
+[node name="GridRoot" type="Node3D" parent="."]
+
+[node name="GridVisual" type="Node3D" parent="."]
+
+[node name="WireframeGrid" type="Node3D" parent="."]
