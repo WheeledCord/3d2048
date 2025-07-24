@@ -14,5 +14,7 @@ mesh = SubResource("BoxMesh_a0tk4")
 surface_material_override/0 = ExtResource("2_je3b2")
 
 [node name="Label3D" type="Label3D" parent="."]
-text = "3"
+billboard = 1
+double_sided = false
+text = "?"
 font_size = 216

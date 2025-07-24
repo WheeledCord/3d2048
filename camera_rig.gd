@@ -15,7 +15,7 @@ func _unhandled_input(event):
 	if event is InputEventMouseMotion:
 		yaw -= event.relative.x * sensitivity
 		pitch -= event.relative.y * sensitivity
-		pitch = clamp(pitch, -9999999999, 999999999999999)
+		#pitch = clamp(pitch, -9999999999, 999999999999999)
 
 func _process(delta):
 	rotation_degrees = Vector3(pitch, yaw, 0)

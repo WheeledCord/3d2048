@@ -31,7 +31,7 @@ func _unhandled_input(event):
 				spawn_random_tile()
 				spawn_random_tile()
 
-func get_camera_direction():
+func get_camera_direction() -> Dictionary:
 	var basis = camera.global_transform.basis
 	return {
 		"x": basis.x.normalized(),
@@ -44,9 +44,9 @@ func get_move_axis(raw_dir: Vector3) -> Vector3:
 	var max_dot = 0.0
 	var best_axis = Vector3.ZERO
 	for axis in axes:
-		var dot = abs(raw_dir.dot(axis))
-		if dot > max_dot:
-			max_dot = dot
+		var dot_val = abs(raw_dir.dot(axis))
+		if dot_val > max_dot:
+			max_dot = dot_val
 			best_axis = axis * sign(raw_dir.dot(axis))
 	return best_axis
 
@@ -71,18 +71,23 @@ func move_tiles(direction: Vector3) -> bool:
 					if other.value == tile.value and next_pos not in merged:
 						target_pos = next_pos
 					break
+				# Continue sliding
 				current_pos = next_pos
 				target_pos  = next_pos
 
+			# Perform move or merge
 			if target_pos != pos:
 				grid.erase(pos)
 				if target_pos in grid:
-					# merge
+					# Merge
 					var other = grid[target_pos]
 					tile.value *= 2
 					other.queue_free()
 					grid_root.remove_child(other)
 					merged.append(target_pos)
+					# play merge animation
+					tile.animate_merge()
+				# assign and move
 				grid[target_pos] = tile
 				tile.move_to(grid_to_world(target_pos))
 				moved = true
@@ -117,7 +122,8 @@ func spawn_random_tile():
 	var tile    = TILE_SCENE.instantiate()
 	tile.value = 2
 	tile.global_position = grid_to_world(new_pos)
-	tile.move_to(grid_to_world(new_pos))
+	# play spawn animation
+	tile.animate_spawn()
 	grid_root.add_child(tile)
 	grid[new_pos] = tile
 
@@ -171,6 +177,6 @@ func draw_wireframe_grid():
 				mi.mesh = mesh
 				var mat = StandardMaterial3D.new()
 				mat.shading_mode     = BaseMaterial3D.SHADING_MODE_UNSHADED
-				mat.albedo_color     = Color(0.5, 0.5, 0.5, 1)  # gray
+				mat.albedo_color     = Color(0.5, 0.5, 0.5, 1)
 				mi.material_override = mat
 				wireframe_root.add_child(mi)
