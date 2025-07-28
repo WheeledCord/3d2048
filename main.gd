@@ -6,22 +6,29 @@ const TILE_SCENE = preload("res://Tile.tscn")
 @onready var wireframe_root = $WireframeGrid
 @onready var grid_root      = $GridRoot
 @onready var camera         = $CameraRig/Camera3D
+@onready var score_label    = $CanvasLayer/ScoreLabel
 
-var grid = {}
+var grid: Dictionary = {}
+var score: int = 0
+var high_score: int = 0
 
 func _ready():
+	load_high_score()
 	draw_wireframe_grid()
-	spawn_random_tile()
-	spawn_random_tile()
+	reset_game()
 
 func _unhandled_input(event):
-	var dir := Vector3.ZERO
 	if event is InputEventKey and event.pressed:
+		if event.keycode == KEY_R:
+			reset_game()
+			return
+
+		var dir := Vector3.ZERO
 		match event.keycode:
-			KEY_W: dir = get_camera_direction()["z"] * -1
-			KEY_S: dir = get_camera_direction()["z"]
-			KEY_A: dir = get_camera_direction()["x"] * -1
-			KEY_D: dir = get_camera_direction()["x"]
+			KEY_W:     dir = get_camera_direction()["z"] * -1
+			KEY_S:     dir = get_camera_direction()["z"]
+			KEY_A:     dir = get_camera_direction()["x"] * -1
+			KEY_D:     dir = get_camera_direction()["x"]
 			KEY_SPACE: dir = Vector3.UP
 			KEY_SHIFT, KEY_C: dir = Vector3.DOWN
 
@@ -30,6 +37,20 @@ func _unhandled_input(event):
 			if move_tiles(dir):
 				spawn_random_tile()
 				spawn_random_tile()
+
+func reset_game():
+	# clear existing tiles
+	for child in grid_root.get_children():
+		child.queue_free()
+	grid.clear()
+
+	# reset score
+	score = 0
+	update_score_label()
+
+	# spawn initial tiles
+	spawn_random_tile()
+	spawn_random_tile()
 
 func get_camera_direction() -> Dictionary:
 	var basis = camera.global_transform.basis
@@ -71,7 +92,6 @@ func move_tiles(direction: Vector3) -> bool:
 					if other.value == tile.value and next_pos not in merged:
 						target_pos = next_pos
 					break
-				# Continue sliding
 				current_pos = next_pos
 				target_pos  = next_pos
 
@@ -82,12 +102,16 @@ func move_tiles(direction: Vector3) -> bool:
 					# Merge
 					var other = grid[target_pos]
 					tile.value *= 2
+					# update score
+					score += tile.value
+					if score > high_score:
+						high_score = score
+						save_high_score()
+					update_score_label()
 					other.queue_free()
 					grid_root.remove_child(other)
 					merged.append(target_pos)
-					# play merge animation
 					tile.animate_merge()
-				# assign and move
 				grid[target_pos] = tile
 				tile.move_to(grid_to_world(target_pos))
 				moved = true
@@ -122,7 +146,6 @@ func spawn_random_tile():
 	var tile    = TILE_SCENE.instantiate()
 	tile.value = 2
 	tile.global_position = grid_to_world(new_pos)
-	# play spawn animation
 	tile.animate_spawn()
 	grid_root.add_child(tile)
 	grid[new_pos] = tile
@@ -180,3 +203,24 @@ func draw_wireframe_grid():
 				mat.albedo_color     = Color(0.5, 0.5, 0.5, 1)
 				mi.material_override = mat
 				wireframe_root.add_child(mi)
+
+func update_score_label():
+	score_label.text = "Score: %d\nHigh Score: %d" % [score, high_score]
+
+func save_high_score():
+	if Engine.has_singleton("JavaScript"):
+		var js_iface = Engine.get_singleton("JavaScript")
+		var js = "document.cookie = 'highScore=' + %d + ';path=/;max-age=' + %d;" % [high_score, 60*60*24*365]
+		js_iface.eval(js, false)
+
+func load_high_score():
+	if Engine.has_singleton("JavaScript"):
+		var js_iface = Engine.get_singleton("JavaScript")
+		var js = """
+			(()=>{
+				let m = document.cookie.match(/(?:^|; )highScore=(\\d+)/);
+				return m ? m[1] : '0';
+			})()
+		"""
+		var val = js_iface.eval(js, true)
+		high_score = int(val)

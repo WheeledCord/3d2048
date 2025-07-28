@@ -2,4 +2,7 @@
 
 [resource]
 transparency = 1
-albedo_color = Color(1, 1, 1, 0.466667)
+depth_draw_mode = 2
+no_depth_test = true
+emission = Color(0.837924, 0.791934, 1.54018e-06, 1)
+emission_energy_multiplier = 16.0
