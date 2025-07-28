@@ -1,8 +1,7 @@
-[gd_scene load_steps=4 format=3 uid="uid://bokkat7cb4hml"]
+[gd_scene load_steps=3 format=3 uid="uid://bokkat7cb4hml"]
 
 [ext_resource type="Script" uid="uid://b0x5a2g844ova" path="res://camera_rig.gd" id="1_a202f"]
 [ext_resource type="Script" uid="uid://clt4vm4tspyta" path="res://main.gd" id="1_noarx"]
-[ext_resource type="PackedScene" uid="uid://dnidsxylu2uew" path="res://Tile.tscn" id="3_a0tk4"]
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1_noarx")
@@ -30,12 +29,8 @@ text = "Score: 255
 High Score: 277"
 
 [node name="Info" type="Label" parent="CanvasLayer"]
-offset_left = 634.0
-offset_right = 772.0
-offset_bottom = 23.0
+offset_top = 52.0
+offset_right = 138.0
+offset_bottom = 75.0
 text = "Press R to restart!"
 horizontal_alignment = 2
-
-[node name="Node3D" parent="." instance=ExtResource("3_a0tk4")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.623775, 0.528048, 0)
-value = null
